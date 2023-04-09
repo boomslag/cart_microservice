@@ -11,25 +11,25 @@ CartItem = apps.get_model('cart', 'CartItem')
 
 consumer1 = Consumer({
     'bootstrap.servers': os.environ.get('KAFKA_BOOTSTRAP_SERVER'),
-    'security.protocol': 'SASL_SSL',
+    'security.protocol': os.environ.get('KAFKA_SECURITY_PROTOCOL'),
     'sasl.username': os.environ.get('KAFKA_USERNAME'),
     'sasl.password': os.environ.get('KAFKA_PASSWORD'),
     'sasl.mechanism': 'PLAIN',
-    'group.id': 'auth_group_cart',
+    'group.id': os.environ.get('KAFKA_GROUP'),
     'auto.offset.reset': 'earliest'
 })
-consumer1.subscribe(['user_registered'])
+consumer1.subscribe([os.environ.get('KAFKA_TOPIC')])
 
 consumer2 = Consumer({
     'bootstrap.servers': os.environ.get('KAFKA_BOOTSTRAP_SERVER'),
-    'security.protocol': 'SASL_SSL',
+    'security.protocol': os.environ.get('KAFKA_SECURITY_PROTOCOL'),
     'sasl.username': os.environ.get('KAFKA_USERNAME'),
     'sasl.password': os.environ.get('KAFKA_PASSWORD'),
     'sasl.mechanism': 'PLAIN',
-    'group.id': 'course_deleted',
+    'group.id': os.environ.get('KAFKA_GROUP_2'),
     'auto.offset.reset': 'earliest'
 })
-consumer2.subscribe(['course_deleted'])
+consumer2.subscribe([os.environ.get('KAFKA_TOPIC_2')])
 
 while True:
     msg1 = consumer1.poll(1.0)
