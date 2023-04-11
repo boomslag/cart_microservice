@@ -134,18 +134,18 @@ DATABASES["default"]["ATOMIC_REQUESTS"] = True
 #         },
 #     }
 # }
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": env("REDIS_URL"),
+        "LOCATION": f"{os.environ.get('REDIS_URL')}/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "PASSWORD": env("REDIS_PASSWORD", default=None),
+            "PASSWORD": os.environ.get('REDIS_PASSWORD'),
             "SSL": True,
         },
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
