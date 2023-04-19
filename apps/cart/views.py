@@ -275,16 +275,17 @@ class GetTotalView(StandardAPIView):
             product_discount = product_response.get('details').get('discount')
 
             if product_price is not None:
-                base_price = product_price
-            else:
-                if selected_weight:
-                    base_price += Decimal(selected_weight.get('price'))
-                if selected_material:
-                    base_price += Decimal(selected_material.get('price'))
-                if selected_color:
-                    base_price += Decimal(selected_color.get('price'))
-                if selected_size:
-                    base_price += Decimal(selected_size.get('price'))
+                base_price = Decimal(product_price)
+            if selected_weight:
+                base_price += Decimal(selected_weight.get('price'))
+            if selected_material:
+                base_price += Decimal(selected_material.get('price'))
+            if selected_color:
+                base_price += Decimal(selected_color.get('price'))
+            if selected_size:
+                base_price += Decimal(selected_size.get('price'))
+
+            print("Base Price:", base_price)
 
             # Calculate Total Cost Without Discounts and Coupons and Taxes (total_cost)
             if product_discount == False:
@@ -384,7 +385,6 @@ class AddItemView(StandardAPIView):
                 )
 
         if item_type == 'Product':
-            print(data)
             # Check if item already in cart
             if CartItem.objects.filter(cart=cart, product=item_id).exists():
                 return self.send_error(
@@ -403,25 +403,23 @@ class AddItemView(StandardAPIView):
                 shipping_id = data.get('shipping').get('id')
                 cart_item_object.shipping = shipping_id
                 
-            # if data.get('color'):
-            #     color_id = data.get('color')
-            #     cart_item_object.color = color_id
+            if data.get('color'):
+                color_id = data.get('color').get('id')
+                cart_item_object.color = color_id
                 
-            # if data.get('size'):
-            #     size_id = data.get('size')
-            #     cart_item_object.size = size_id
+            if data.get('size'):
+                size_id = data.get('size').get('id')
+                cart_item_object.size = size_id
                 
             if data.get('weight'):
                 weight_id = data.get('weight').get('id')
-                # weight_name = data.get('weight').get('title')
-                # weight_price = data.get('weight').get('price')
                 cart_item_object.weight = weight_id
                 
-            # if data.get('material'):
-            #     material_id = data.get('material')
-            #     cart_item_object.material = material_id
+            if data.get('material'):
+                material_id = data.get('material').get('id')
+                cart_item_object.material = material_id
                 
-            cart_item_object.count = data.get('quantity')
+            cart_item_object.count = data.get('count')
             cart_item_object.save()
             
             # Update the total number of items in the cart

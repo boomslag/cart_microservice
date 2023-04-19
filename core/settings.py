@@ -138,7 +138,7 @@ DATABASES["default"]["ATOMIC_REQUESTS"] = True
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"{os.environ.get('REDIS_URL')}/0",
+        "LOCATION": f"{os.environ.get('REDIS_URL')}/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "PASSWORD": os.environ.get('REDIS_PASSWORD'),
