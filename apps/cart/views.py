@@ -570,25 +570,60 @@ class UpdateItemView(StandardAPIView):
 
 class SynchCartItemsView(StandardAPIView):
     permission_classes = (permissions.AllowAny,)
+
     def put(self, request, format=None):
         payload = validate_token(request)
         user_id = payload['user_id']
         data = request.data
-        
-        items=[]
+
         cart, created = Cart.objects.get_or_create(user=user_id)
         cart_items = data['cart_items']
 
+        items = []
         courses = []
         products = []
-        # for item in data:
-        #     if item.get('course'):
-        #         courses.append(item)
-        #     elif item.get('product'):
-        #         products.append(item)
-        for cart_item in cart_items:
-            print('Cart Items ',cart_item)
-            
+
+        for item in cart_items:
+            if item['type'] == 'Course':
+                courses.append(item)
+            elif item['type'] == 'Product':
+                products.append(item)
+
+        # Add courses to the cart
+        for course in courses:
+            course_id = course['course_id']
+            coupon = course['coupon'] if course['coupon'] else None
+            referrer = course['referrer'] if course['referrer'] else None
+
+            # Update or create the CartItem for the course
+            cart_item, _ = CartItem.objects.update_or_create(
+                cart=cart, course=course_id,
+                defaults={'coupon': coupon, 'referrer': referrer}
+            )
+            items.append(cart_item)
+
+        # Add products to the cart
+        for product in products:
+            product_id = product['product_id']
+            count = product['count']
+            size = product['size'] if product['size'] else None
+            weight = product['weight'] if product['weight'] else None
+            material = product['material'] if product['material'] else None
+            color = product['color'] if product['color'] else None
+            shipping = product['shipping'] if product['shipping'] else None
+            coupon = product['coupon'] if product['coupon'] else None
+            referrer = product['referrer'] if product['referrer'] else None
+
+            # Update or create the CartItem for the product
+            cart_item, _ = CartItem.objects.update_or_create(
+                cart=cart, product=product_id,
+                defaults={
+                    'count': count, 'size': size, 'weight': weight,
+                    'material': material, 'color': color, 'shipping': shipping,
+                    'coupon': coupon, 'referrer': referrer
+                }
+            )
+            items.append(cart_item)
 
         total_items = cart.total_items
-        return self.send_response({'cart':items,'total_items':total_items },status=status.HTTP_200_OK)
+        return self.send_response({'cart': items, 'total_items': total_items}, status=status.HTTP_200_OK)
